@@ -30,14 +30,29 @@ int raizQuadrada(int tam) {
 
 int main()
 {
+    // Teste bit shifting
     srand(time(NULL));
     int64_t x=7;
     printf("%ld\n", x);
     printf("%ld\n", ((int64_t)(x & 0xF) << 60));
-    int64_t y=7;
+    int64_t y=8070450532247928832;
     printf("%ld\n", y);
     printf("%ld\n", (y >> 60) & 0xF);
-    
+    printf("\n\n");
+
+    // Princípios de preenchimento e visualizção do baralho 
+    int64_t deck=0;
+    for (int i = 0; i < 16; i++)
+    {
+        int shift = 60 - (i * 4);
+        deck &= ~(0xFULL << 60-(i*4));
+        deck |= ((int64_t)((i%4+1) & 0xF) << shift);
+    }
+    for (int i = 0; i < 16; i++)
+    {
+        int shift = 60 - (i * 4);
+        printf("%d - %d\n", ((deck >> shift) & 0xF), i);
+    }
 
     /*intptr_t deck[] = {1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4};
     size_t tam = sizeof(deck) / sizeof(intptr_t);
