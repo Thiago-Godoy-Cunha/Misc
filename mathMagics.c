@@ -31,7 +31,12 @@ int raizQuadrada(int tam) {
 int main()
 {
     srand(time(NULL));
-    intptr_t deck[] = {1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4};
+    int64_t d=8070450532247928832;
+    printf("%ld\n", d);
+    printf("%ld\n", (d >> 60) & 0xF);
+    
+
+    /*intptr_t deck[] = {1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4};
     size_t tam = sizeof(deck) / sizeof(intptr_t);
 
     printf("Deck original: "); // O baralho normal, com todas as cartas normalmente colocadas nele
@@ -71,6 +76,7 @@ int main()
 
     int ladoMatriz = raizQuadrada((int)tam);
 
+    printf("Matriz normal:\n");
     for (int i = 0; i < ladoMatriz; i++)
     {
         if (i%2!=0) for (int x = ladoMatriz; x > ladoMatriz/2; x--) { // Isso inverte a ordem das linhas pares da matriz (espero)
@@ -80,7 +86,7 @@ int main()
         }
         for (int j = ladoMatriz*i; j < ladoMatriz*(i+1); j++) printf("| %d\t", deck[j]); // printa a matriz formatada corretamente
         printf("|\n");
-
+    }
         int par[2];
         
         // pqp tarde demais pra usar alocação dinâmica
@@ -97,13 +103,11 @@ int main()
                 {
                     par[0] = deck[ladoMatriz*i]*(-1);
                     par[1] = deck[(ladoMatriz*i)+1];     
-                    deck[ladoMatriz*i] = (intptr_t)par;  
+                    deck[ladoMatriz*i] = (intptr_t)par; 
+                    deck[(ladoMatriz*i)+1] = 0;  
+                    if (deck[i] == 0) deck[i] = deck[i+1];
                 }
-                ladoMatriz--;
-                for (int i = 0; i < ladoMatriz; i++) 
-                {
-                    // travei aqui
-                }
+                printf("Primeira coluna\n");
                 break;
             
             case 1: // última coluna
@@ -111,14 +115,21 @@ int main()
                 {
                     par[0] = deck[(ladoMatriz*(i+1))-1]*(-1);
                     par[1] = deck[(ladoMatriz*(i+1))-2];
+                    deck[(ladoMatriz*(i+1))-1] = (intptr_t)par;
+                    deck[(ladoMatriz*(i+1))-2] = 0;
+                    if (deck[i] == 0) deck[i] = deck[i+1];
                 }
+                printf("Última coluna\n");
                 break;
             case 2: // primeira linha
                 for (int i = 0; i < ladoMatriz; i++) 
                 {
                     par[0] = deck[i]*(-1);
                     par[1] = deck[ladoMatriz+i];
+                    deck[i] = (intptr_t)par;
+                    for (int j = ladoMatriz; j < ((ladoMatriz*ladoMatriz)-ladoMatriz)/ladoMatriz; j++) deck[ladoMatriz*i+j] = deck[ladoMatriz*(i+1)+j];
                 }
+                printf("Primeira linha\n");
                 break;
             
             case 3: // última linha
@@ -126,11 +137,19 @@ int main()
                 {
                     par[0] = deck[(int)tam-1-i]*(-1);
                     par[1] = deck[(int)tam-ladoMatriz-1-i];
+                    deck[(int)tam-ladoMatriz-1-i] = (intptr_t)par;
+                    deck[(int)tam-1-i] = 0;
                 }
+                printf("Última coluna\n");
                 break;
             
             default: // sei la o que pode dar errado
                 break;
         }
-    }
+    printf("Matriz reduzida:\n");
+    for (int i = 0; i < ladoMatriz; i++)
+    {
+        for (int j = ladoMatriz*i; j < ladoMatriz*(i+1); j++) if (deck[j] < ladoMatriz*(-1) || deck[j] > ladoMatriz) printf("| %d\t", &deck[j]); else printf("| %d\t", deck[j]); // printa a matriz formatada corretamente
+        printf("|\n");
+    }*/
 }
