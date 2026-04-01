@@ -31,9 +31,12 @@ int raizQuadrada(int tam) {
 int main()
 {
     srand(time(NULL));
-    int64_t d=8070450532247928832;
-    printf("%ld\n", d);
-    printf("%ld\n", (d >> 60) & 0xF);
+    int64_t x=7;
+    printf("%ld\n", x);
+    printf("%ld\n", ((int64_t)(x & 0xF) << 60));
+    int64_t y=7;
+    printf("%ld\n", y);
+    printf("%ld\n", (y >> 60) & 0xF);
     
 
     /*intptr_t deck[] = {1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4};
