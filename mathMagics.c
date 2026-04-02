@@ -3,8 +3,7 @@
 #include <time.h>
 #include <stdint.h>
 
-int raizQuadrada(int tam) {
-
+/*int raizQuadrada(int tam) {
     int i = 1;
     int t = tam;
     int resultado = 0;
@@ -12,72 +11,102 @@ int raizQuadrada(int tam) {
     while (i <= t)
     {
         int meio = i + (t - i) / 2;
-
         if (meio == (tam/meio)) return meio;
-
-        if (meio < (tam/meio)) {
+        if (meio < (tam/meio)) 
+        {
             i = meio + 1;
             resultado = meio;
         } 
-        else {
-            t = meio - 1;
-        }       
+        else t = meio - 1;      
     }
 
     if (resultado * resultado == tam) return resultado;
     else return -1;
+}*/
+
+uint8_t shift(uint8_t index)
+{
+    return (60 - (index * 4));
+}
+
+void inputCarta(int64_t *deck, int8_t carta, uint8_t index)
+{
+    *deck &= ~(0xFULL << shift(index)); // Se não for long long, ele atribui 32 bits e o bit shifting não funciona
+    *deck |= ((int64_t)(carta & 0xF) << shift(index));
+}
+
+// uint8_t inputCartaReturn(int64_t deck, int8_t carta, uint8_t index)
+// {
+//     deck &= ~(0xFULL << shift(index)); // Se não for long long, ele atribui 32 bits e o bit shifting não funciona
+//     deck |= ((int64_t)(carta & 0xF) << shift(index));
+//     return carta;
+// }
+
+// #define inputCarta(d, c, i) _Generic((d), int64_t*: inputCartaPont, int64_t: inputCartaReturn)(d, c, i) // Sim, usei IA pra fazer overload de função em C puro
+
+uint8_t lerCarta(int64_t deck, uint8_t index)
+{
+    return (deck >> shift(index)) & 0xF;
+}
+
+void shuffle(int64_t *deck) 
+{
+    int64_t d = (*deck);
+    for (uint8_t i = 0xF; i > 0; i--)
+    {
+        uint8_t randIndex = rand()%0xF;
+        int64_t temp = lerCarta(d, randIndex);
+        int64_t value = lerCarta(d, i);
+        d &= ~(0xFULL << shift(randIndex));
+        d |= (value << shift(randIndex));
+        d &= ~(0xFULL << shift(i));
+        d |= (temp << shift(i));
+        int8_t carta = lerCarta(d, i);
+    }
+    *deck = d;
 }
 
 int main()
 {
-    // Teste bit shifting
     srand(time(NULL));
-    int64_t x=7;
-    printf("%ld\n", x);
-    printf("%ld\n", ((int64_t)(x & 0xF) << 60));
-    int64_t y=8070450532247928832;
-    printf("%ld\n", y);
-    printf("%ld\n", (y >> 60) & 0xF);
-    printf("\n\n");
 
     // Princípios de preenchimento e visualizção do baralho 
     int64_t deck=0;
-    for (int i = 0; i < 16; i++)
+    for (uint8_t i = 0; i < 16; i++)
     {
-        int shift = 60 - (i * 4);
-        deck &= ~(0xFULL << 60-(i*4));
-        deck |= ((int64_t)((i%4+1) & 0xF) << shift);
-    }
-    for (int i = 0; i < 16; i++)
-    {
-        int shift = 60 - (i * 4);
-        printf("%d - %d\n", ((deck >> shift) & 0xF), i);
+        if (i%4+1 < 2) inputCarta(&deck, (((i%4)+1)|8), i); // Enche o deck com cartas de um a quatro, 
+        else inputCarta(&deck, ((i%4)+1), i);               // reservando o último bit para o sinal caso seja um Ás
     }
 
-    /*intptr_t deck[] = {1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4};
-    size_t tam = sizeof(deck) / sizeof(intptr_t);
-
-    printf("Deck original: "); // O baralho normal, com todas as cartas normalmente colocadas nele
-    for (size_t i = 0; i < tam; i++) printf("%d, ", deck[i]);
-    printf("\n");
-
-    for (size_t i = 0; i < tam; i++) if (deck[i]==1) deck[i]=deck[i]*(-1);
-    printf("Deck azes virados: "); // o baralho após colocar os azes virados (representei cartas viradas como os números negatidos)
-    for (size_t i = 0; i < tam; i++) printf("%d, ", deck[i]);
-    printf("\n");
-
-    for (size_t i = tam-1; i > 0; i--) // Preguiça de transformar esse trechinho em uma função pra substituir o shuffle
+    printf("Baralho original: ");
+    for (uint8_t i = 0; i < 16; i++)
     {
-        size_t j = rand() % tam;
-        int temp = deck[j];
-        deck[j] = deck[i];
-        deck[i] = temp;
+        uint8_t carta = lerCarta(deck, i);
+        if (carta>8) printf("%d, ", carta-8);
+        else printf("%d, ", carta);
     }
+    printf("\n\n");
 
-    printf("Deck embaralhado: "); // o baralho após embaralhar novamente
-    for (size_t i = 0; i < tam; i++) printf("%d, ", deck[i]);
-    printf("\n");
+    printf("Baralho ases virados: ");
+    for (uint8_t i = 0; i < 16; i++)
+    {
+        uint8_t carta = lerCarta(deck, i);
+        if (carta > 7) printf("%d, ", (carta ^ 0x8)*(-1));
+        else printf("%d, ", (carta));
+    }
+    printf("\n\n");
 
+    shuffle(&deck);
+    printf("Baralho embaralhado: ");
+    for (uint8_t i = 0; i < 16; i++)
+    {
+        uint8_t carta = lerCarta(deck, i);
+        if (carta > 7) printf("%d, ", (carta ^ 0x8)*(-1));
+        else printf("%d, ", (carta));
+    }
+    printf("\n\n");
+
+    /*
     for (size_t i = 0; i < tam; i++) if ((i+1)%2==0) deck[i]=deck[i]*(-1);
     printf("Deck caótico: "); // O baralho após fazer a sequência de mantém, vira, mantém, vira
     for (size_t i = 0; i < tam; i++) printf("%d, ", deck[i]);
